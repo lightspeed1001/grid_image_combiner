@@ -164,7 +164,10 @@ namespace WindowsFormsApp1
                 {
                     Point p = new Point(panelSize * i + panelPadding * i, 
                                         panelSize * j + panelPadding * j);
-                    Panel panel = new Panel();
+                    Size size = new Size(panelSize, panelSize);
+                    MapTile tile = new MapTile { Coords = new Point(i, j) };
+                    Panel panel = GetNewPanel(p, size, tile);
+                    /*Panel panel = new Panel();
                     panel.Size = new Size(panelSize, panelSize);
                     panel.Location = p;
                     panel.BackColor = Color.Black;
@@ -174,10 +177,100 @@ namespace WindowsFormsApp1
                     panel.DragLeave += Panel_DragLeave;
                     panel.DragDrop += Panel_DragDrop;
                     panel.DoubleClick += Panel_DoubleClick;
-                    panel.Tag = new MapTile { Coords = new Point(i, j) };
+                    panel.Tag = new MapTile { Coords = new Point(i, j) };*/
                     Controls.Add(panel);
                 }
             }
+        }
+
+        private Panel GetNewPanel(Point location, Size size, MapTile tile)
+        {
+            Panel panel = new Panel();
+            panel.Size = size;
+            panel.Location = location;
+            panel.BackColor = Color.Black;
+            panel.AllowDrop = true;
+            panel.BackgroundImageLayout = ImageLayout.Stretch;
+            panel.DragEnter += Panel_DragEnter;
+            panel.DragLeave += Panel_DragLeave;
+            panel.DragDrop += Panel_DragDrop;
+            panel.DoubleClick += Panel_DoubleClick;
+            panel.Tag = tile;
+            return panel;
+        }
+
+        private void AddPanelColLeft(object sender, EventArgs e)
+        {
+            Size add = new Size(1, 0);
+            Size locAdd = new Size(panelSize + panelPadding, 0);
+            foreach (Panel p in Controls.OfType<Panel>())
+            {
+                MapTile mt = (MapTile)p.Tag;
+                mt.Coords += add;
+                p.Location += locAdd;
+            }
+
+            Size size = new Size(panelSize, panelSize);
+            for (int i = 0; i < MapHeight; i++)
+            {
+                MapTile mt = new MapTile { Coords = new Point(0, i) };
+                Point location = new Point(0, i * panelSize + i * panelPadding);
+                Panel p = GetNewPanel(location, size, mt);
+                Controls.Add(p);
+            }
+
+            MapWidth++;
+        }
+
+        private void AddPanelColRight(object sender, EventArgs e)
+        {
+            Size size = new Size(panelSize, panelSize);
+            for (int i = 0; i < MapHeight; i++)
+            {
+                MapTile mt = new MapTile { Coords = new Point(MapWidth, i) };
+                Point location = new Point(MapWidth * panelSize + MapWidth * panelPadding, i * panelSize + i * panelPadding);
+                Panel p = GetNewPanel(location, size, mt);
+                Controls.Add(p);
+            }
+
+            MapWidth++;
+        }
+
+        private void AddPanelRowTop(object sender, EventArgs e)
+        {
+            Size add = new Size(0, 1);
+            Size locAdd = new Size(0, panelSize+panelPadding);
+            foreach (Panel p in Controls.OfType<Panel>())
+            {
+                MapTile mt = (MapTile)p.Tag;
+                mt.Coords += add;
+                p.Location += locAdd;
+            }
+
+            Size size = new Size(panelSize, panelSize);
+            for (int i = 0; i < MapWidth; i++)
+            {
+                MapTile mt = new MapTile { Coords = new Point(i, 0) };
+                Point location = new Point(i * panelSize + i * panelPadding, 0);
+                Panel p = GetNewPanel(location, size, mt);
+                Controls.Add(p);
+            }
+
+            MapHeight++;
+        }
+
+        private void AddPanelRowBottom(object sender, EventArgs e)
+        {
+            Size size = new Size(panelSize, panelSize);
+            for (int i = 0; i < MapWidth; i++)
+            {
+                MapTile mt = new MapTile { Coords = new Point(i, MapHeight) };
+                Point location = new Point(i * panelSize + i * panelPadding, MapHeight * panelSize + MapHeight * panelPadding);
+                Panel p = GetNewPanel(location, size, mt);
+                Controls.Add(p);
+            }
+
+            MapHeight++;
         }
 
         private void Panel_DoubleClick(object sender, EventArgs e)
@@ -210,6 +303,7 @@ namespace WindowsFormsApp1
                 ((MapTile)p.Tag).PathToImage = s[0];
             }
         }
+
 
         private void btnExport_Click(object sender, EventArgs e)
         {
